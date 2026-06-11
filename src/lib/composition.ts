@@ -16,6 +16,10 @@ import { Project, Question } from "./types";
 import { projectDir } from "./storage";
 
 const W = 1080;
+
+// Countdown ring geometry (SVG circle around the ИЛИ badge).
+const RING_R = 108;
+const RING_C = 2 * Math.PI * RING_R;
 const H = 1920;
 
 const GSAP_CDN = "https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js";
@@ -210,15 +214,15 @@ function renderHtml(
       `<audio id="tick-${i}" class="clip" src="assets/sfx/tick.wav" data-start="${n(seg.tickStart)}" data-duration="${n(Math.min(seg.q.tickSeconds, 13.5))}" data-track-index="2" data-volume="${project.settings.tickVolume}"></audio>`
     );
     clips.push(
-      `<audio id="whoosh-${i}" class="clip" src="assets/sfx/whoosh.wav" data-start="${n(seg.start)}" data-track-index="3" data-volume="0.7"></audio>`
+      `<audio id="whoosh-${i}" class="clip" src="assets/sfx/whoosh.wav" data-start="${n(seg.start)}" data-track-index="3" data-volume="0.5"></audio>`
     );
     clips.push(
-      `<audio id="pop-a-${i}" class="clip" src="assets/sfx/pop.wav" data-start="${n(seg.start + 0.1)}" data-track-index="4" data-volume="0.8"></audio>`,
-      `<audio id="pop-b-${i}" class="clip" src="assets/sfx/pop.wav" data-start="${n(seg.bReveal)}" data-track-index="4" data-volume="0.8"></audio>`
+      `<audio id="pop-a-${i}" class="clip" src="assets/sfx/pop.wav" data-start="${n(seg.start + 0.1)}" data-track-index="4" data-volume="0.5"></audio>`,
+      `<audio id="pop-b-${i}" class="clip" src="assets/sfx/pop.wav" data-start="${n(seg.bReveal)}" data-track-index="4" data-volume="0.5"></audio>`
     );
     if (seg.q.showPercents) {
       clips.push(
-        `<audio id="ding-${i}" class="clip" src="assets/sfx/ding.wav" data-start="${n(seg.percentTime)}" data-track-index="5" data-volume="0.7"></audio>`
+        `<audio id="ding-${i}" class="clip" src="assets/sfx/ding.wav" data-start="${n(seg.percentTime)}" data-track-index="5" data-volume="0.55"></audio>`
       );
     }
   });
@@ -246,6 +250,10 @@ function renderHtml(
       `<h2 id="qb-cap-${i}" class="clip caption cap-bottom" data-start="${n(seg.bReveal)}" data-duration="${dur(seg.bReveal, capEndA)}" data-track-index="12">${esc(q.optionB.text)}</h2>`,
       `<div id="qb-img-${i}" class="clip opt-img bottom" data-start="${n(seg.bReveal)}" data-duration="${dur(seg.bReveal, seg.end)}" data-track-index="13">${imgTag(imgB, q.optionB.text)}</div>`
     );
+    // Countdown ring around the ИЛИ badge (like the reference videos).
+    clips.push(
+      `<div id="ring-${i}" class="clip timer-ring" data-start="${n(seg.tickStart)}" data-duration="${dur(seg.tickStart, seg.tickStart + q.tickSeconds)}" data-track-index="16"><svg width="244" height="244" viewBox="0 0 244 244"><circle class="ring-fg" cx="122" cy="122" r="${RING_R}" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-dasharray="${n(RING_C)}" stroke-dashoffset="0" transform="rotate(-90 122 122)"/></svg></div>`
+    );
     if (q.showPercents) {
       const pa = q.percentA;
       const pb = 100 - pa;
@@ -263,8 +271,8 @@ function renderHtml(
       `tl.from("#qa-cap-${i}", { scale: 0.4, opacity: 0, duration: 0.35, ease: "back.out(2.2)" }, ${n(seg.start + 0.1)});`,
       `tl.from("#qb-cap-${i}", { scale: 0.4, opacity: 0, duration: 0.35, ease: "back.out(2.2)" }, ${n(seg.bReveal)});`,
       `tl.from("#qb-img-${i}", { x: -${W}, duration: 0.45, ease: "power3.out" }, ${n(seg.bReveal)});`,
-      // Subtle breathing on images during the ticking phase.
-      `tl.to("#qa-img-${i} img, #qb-img-${i} img", { scale: 1.05, duration: ${n(Math.max(0.5, seg.end - seg.tickStart))}, ease: "sine.inOut" }, ${n(seg.tickStart)});`,
+      // Countdown ring around the ИЛИ badge during the ticking phase.
+      `tl.fromTo("#ring-${i} .ring-fg", { strokeDashoffset: 0 }, { strokeDashoffset: ${n(RING_C)}, duration: ${n(Math.max(0.5, seg.q.tickSeconds))}, ease: "none" }, ${n(seg.tickStart)});`,
       // Slide out at the end of the segment.
       `tl.to("#qa-img-${i}", { x: -${W}, duration: 0.3, ease: "power2.in" }, ${n(seg.end - 0.3)});`,
       `tl.to("#qb-img-${i}", { x: ${W}, duration: 0.3, ease: "power2.in" }, ${n(seg.end - 0.3)});`
@@ -319,23 +327,26 @@ ${ctx.gsapTag}
   }
   .caption {
     position: absolute; left: 5%; width: 90%; margin: 0; z-index: 20;
-    color: #fff; font-size: 66px; line-height: 1.12; font-weight: 900; text-align: center;
-    -webkit-text-stroke: 2px #000;
-    text-shadow: 4px 4px 0 #000, -4px 4px 0 #000, 4px -4px 0 #000, -4px -4px 0 #000,
-                 0 6px 0 #000, 0 -6px 0 #000, 6px 0 0 #000, -6px 0 0 #000;
+    color: #fff; font-size: 64px; line-height: 1.15; font-weight: 900; text-align: center;
+    -webkit-text-stroke: 14px #000; paint-order: stroke fill;
   }
-  .cap-top { top: 640px; }
-  .cap-bottom { top: ${H / 2 + 110}px; }
+  /* Same distance from each image: image edge is at 624px from its screen edge,
+     captions sit 26px from the image on both halves. */
+  .cap-top { top: 650px; }
+  .cap-bottom { bottom: 650px; }
   .percent {
     position: absolute; left: 0; width: 100%; margin: 0; z-index: 21;
     font-size: 150px; font-weight: 900; text-align: center; line-height: 1;
-    -webkit-text-stroke: 3px #000;
-    text-shadow: 6px 6px 0 #000, -6px 6px 0 #000, 6px -6px 0 #000, -6px -6px 0 #000;
+    -webkit-text-stroke: 16px #000; paint-order: stroke fill;
   }
   .percent.win { color: #2bff4f; }
   .percent.lose { color: #ff2b2b; }
-  .pct-top { top: 690px; }
-  .pct-bottom { top: ${H / 2 + 130}px; }
+  .pct-top { top: 642px; }
+  .pct-bottom { bottom: 642px; }
+  .timer-ring {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 244px; height: 244px; z-index: 32;
+  }
   .watermark {
     position: absolute; bottom: 28px; left: 0; width: 100%; text-align: center;
     color: rgba(255,255,255,0.85); font-size: 34px; font-weight: 700; z-index: 40;
