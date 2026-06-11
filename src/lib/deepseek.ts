@@ -1,9 +1,9 @@
-// OpenAI script generation for Russian "Что выберешь?" choice videos.
+// DeepSeek script generation for Russian "Что выберешь?" choice videos.
 
 import { DEFAULT_TICK_SECONDS, Question } from "./types";
 
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-export const DEFAULT_SCRIPT_MODEL = "gpt-4o-mini";
+const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
+export const DEFAULT_SCRIPT_MODEL = "deepseek-v4-pro";
 
 const SYSTEM_PROMPT = `Ты — сценарист вирусных русскоязычных TikTok-видео в формате "Что выберешь?" (красное или синее).
 Каждый вопрос — это выбор между двумя вариантами, который зачитывается голосом: "<вариант А> или <вариант Б>?"
@@ -47,7 +47,7 @@ export async function generateScript(
       : "";
   const userPrompt = `Сгенерируй ${count} вопросов. Тематика/пожелания: ${topic}.${avoid}`;
 
-  const res = await fetch(OPENAI_URL, {
+  const res = await fetch(DEEPSEEK_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -66,12 +66,12 @@ export async function generateScript(
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`OpenAI error ${res.status}: ${body.slice(0, 500)}`);
+    throw new Error(`DeepSeek error ${res.status}: ${body.slice(0, 500)}`);
   }
 
   const data = await res.json();
   const text: string | undefined = data?.choices?.[0]?.message?.content;
-  if (!text) throw new Error("OpenAI returned an empty response");
+  if (!text) throw new Error("DeepSeek returned an empty response");
 
   let parsed: RawQuestion[];
   try {
@@ -79,10 +79,10 @@ export async function generateScript(
     parsed = Array.isArray(obj) ? obj : obj.questions;
   } catch {
     const match = text.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error("Could not parse OpenAI JSON output");
+    if (!match) throw new Error("Could not parse DeepSeek JSON output");
     parsed = JSON.parse(match[0]);
   }
-  if (!Array.isArray(parsed)) throw new Error("Unexpected OpenAI output shape");
+  if (!Array.isArray(parsed)) throw new Error("Unexpected DeepSeek output shape");
 
   return parsed.map((q, i) => ({
     id: `q-${Date.now()}-${i}`,
@@ -100,37 +100,4 @@ function clampPercent(p: number | undefined): number {
   if (typeof p !== "number" || Number.isNaN(p))
     return 50 + Math.floor(Math.random() * 30);
   return Math.min(92, Math.max(8, Math.round(p)));
-}
-
-/**
- * Generate a single appetizing/stock-style image with the OpenAI image API
- * (gpt-image-1). Returns raw PNG bytes.
- */
-export async function generateOpenAiImage(
-  apiKey: string,
-  query: string
-): Promise<Buffer> {
-  const prompt = `High quality appetizing photo for a viral TikTok "would you rather" video: ${query}. Bright, punchy colors, centered subject, clean composition, landscape orientation. No text, no watermarks.`;
-  const res = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-image-1",
-      prompt,
-      size: "1536x1024",
-      quality: "medium",
-      n: 1,
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`OpenAI image error ${res.status}: ${body.slice(0, 300)}`);
-  }
-  const data = await res.json();
-  const b64: string | undefined = data?.data?.[0]?.b64_json;
-  if (!b64) throw new Error("OpenAI returned no image data");
-  return Buffer.from(b64, "base64");
 }

@@ -1,6 +1,6 @@
 // Shared types for the ILI Studio pipeline.
 
-export type ImageProvider = "pexels" | "openverse" | "openai";
+export type ImageProvider = "pexels" | "openverse";
 
 export interface OptionImage {
   /** Public URL or local path (relative to /public) of the chosen image. */
@@ -88,7 +88,7 @@ export interface Project {
 }
 
 export interface ApiKeys {
-  openai?: string;
+  deepseek?: string;
   elevenlabs?: string;
   heygen?: string;
   pexels?: string;

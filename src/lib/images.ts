@@ -1,5 +1,5 @@
 // Image sourcing: Pexels search (key), Openverse search (keyless fallback),
-// or OpenAI image generation (gpt-image-1, see openai.ts) for AI-styled shots.
+// for the two options of each question.
 
 export interface ImageCandidate {
   /** Direct image URL (or data: URL for generated images). */

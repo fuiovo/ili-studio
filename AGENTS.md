@@ -5,13 +5,13 @@ Guidance for AI agents working in this repo.
 ## What this is
 
 Next.js (App Router, TS) app that generates Russian "Что выберешь?" choice videos:
-OpenAI script → Pexels/Openverse/OpenAI images → ElevenLabs TTS (Adam, with
+DeepSeek script → Pexels/Openverse images → ElevenLabs TTS (Adam, with
 character timestamps) → HeyGen Hyperframes HTML composition → MP4 render
 (HeyGen API or local `npx hyperframes render`).
 
 ## Hard rules
 
-- **No Gemini API** — the owner explicitly removed it. Script + image gen use OpenAI.
+- **No Gemini API and no OpenAI API** — the owner explicitly removed both. Script gen uses DeepSeek (`deepseek-v4-pro`, OpenAI-compatible endpoint at api.deepseek.com).
 - API keys are pasted into the UI and forwarded per-request; never persist them
   server-side or commit them.
 - `public/generated/` is runtime output and gitignored — never commit it.

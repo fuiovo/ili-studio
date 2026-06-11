@@ -72,19 +72,6 @@ export default function QuestionCard({
       setCandidates(null);
     });
 
-  const generateImage = (side: "a" | "b") =>
-    run(`gen-${side}`, async () => {
-      const r = await api("/api/images", {
-        projectId: project.id,
-        action: "generate",
-        questionId: q.id,
-        side,
-        query: side === "a" ? q.optionA.imageQuery : q.optionB.imageQuery,
-        keys,
-      });
-      onProject(r.project);
-    });
-
   const regenAudio = () =>
     run("audio", async () => {
       const r = await api("/api/tts", {
@@ -150,15 +137,6 @@ export default function QuestionCard({
             >
               {busy === `search-${side}` ? <span className="spinner" /> : null}
               Найти фото
-            </button>
-            <button
-              className="secondary small"
-              disabled={!!busy || !keys.openai}
-              title={keys.openai ? "Сгенерировать картинку (OpenAI)" : "Нужен OpenAI ключ"}
-              onClick={() => generateImage(side)}
-            >
-              {busy === `gen-${side}` ? <span className="spinner" /> : null}
-              AI-картинка
             </button>
           </div>
         </label>

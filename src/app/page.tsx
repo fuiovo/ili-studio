@@ -83,7 +83,7 @@ export default function Home() {
       if (!project) return;
       const r = await api("/api/script", {
         projectId: project.id,
-        apiKey: keys.openai,
+        apiKey: keys.deepseek,
         topic: project.settings.topic,
         count: project.settings.questionCount,
         mode,
@@ -218,9 +218,9 @@ export default function Home() {
           <h2><span className="step-num">🔑</span> API-ключи</h2>
           <div className="grid-4">
             <label className="field">
-              <span>OpenAI (сценарий)</span>
-              <input type="password" value={keys.openai ?? ""} placeholder="sk-…"
-                onChange={(e) => setKeys({ ...keys, openai: e.target.value })} />
+              <span>DeepSeek (сценарий)</span>
+              <input type="password" value={keys.deepseek ?? ""} placeholder="sk-…"
+                onChange={(e) => setKeys({ ...keys, deepseek: e.target.value })} />
             </label>
             <label className="field">
               <span>ElevenLabs (озвучка)</span>
@@ -292,12 +292,12 @@ export default function Home() {
                   })} />
               </label>
               <div className="row">
-                <button disabled={!!busy || !keys.openai} onClick={() => generateScript("replace")}>
+                <button disabled={!!busy || !keys.deepseek} onClick={() => generateScript("replace")}>
                   {busy === "script" ? <span className="spinner" /> : null}
                   Сгенерировать сценарий
                 </button>
                 {ready.script && (
-                  <button className="secondary" disabled={!!busy || !keys.openai}
+                  <button className="secondary" disabled={!!busy || !keys.deepseek}
                     onClick={() => generateScript("append")}>
                     + Догенерировать ещё
                   </button>
@@ -305,7 +305,7 @@ export default function Home() {
                 <button className="secondary" onClick={addQuestion}>
                   + Вопрос вручную
                 </button>
-                {!keys.openai && <span className="muted">нужен OpenAI ключ</span>}
+                {!keys.deepseek && <span className="muted">нужен DeepSeek ключ</span>}
               </div>
             </section>
 
@@ -323,7 +323,6 @@ export default function Home() {
                       })}>
                       <option value="pexels">Pexels (нужен ключ)</option>
                       <option value="openverse">Openverse (без ключа)</option>
-                      <option value="openai">OpenAI генерация (gpt-image-1)</option>
                     </select>
                   </label>
                   <button disabled={!!busy} onClick={autoImages}>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateScript } from "@/lib/openai";
+import { generateScript } from "@/lib/deepseek";
 import { loadProject, saveProject } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -7,13 +7,13 @@ export const runtime = "nodejs";
 /**
  * POST /api/script
  * body: { projectId, apiKey, topic, count, mode: "replace" | "append", model? }
- * Generates questions with OpenAI and stores them on the project.
+ * Generates questions with DeepSeek (deepseek-v4-pro) and stores them on the project.
  */
 export async function POST(req: NextRequest) {
   try {
     const { projectId, apiKey, topic, count, mode, model } = await req.json();
     if (!apiKey) {
-      return NextResponse.json({ error: "Нужен OpenAI API ключ" }, { status: 400 });
+      return NextResponse.json({ error: "Нужен DeepSeek API ключ" }, { status: 400 });
     }
     const project = await loadProject(projectId);
     if (!project) {
