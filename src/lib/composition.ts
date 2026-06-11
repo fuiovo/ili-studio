@@ -333,11 +333,11 @@ ${ctx.gsapTag}
     font-size: 52px; font-weight: 900; z-index: 31; letter-spacing: 1px;
   }
   .opt-img {
-    position: absolute; left: 50%; margin-left: -440px; width: 880px; height: 600px;
+    position: absolute; left: 50%; margin-left: -460px; width: 920px; height: 620px;
     z-index: 10; border-radius: 10px; overflow: hidden;
   }
-  .opt-img.top { top: 56px; }
-  .opt-img.bottom { top: ${H - 56 - 600}px; }
+  .opt-img.top { top: 106px; }
+  .opt-img.bottom { top: ${H - 106 - 620}px; }
   .opt-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .opt-img .placeholder {
     width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
@@ -351,8 +351,8 @@ ${ctx.gsapTag}
   }
   /* Same distance from each image: image edge is at 624px from its screen edge,
      captions sit 26px from the image on both halves. */
-  .cap-top { top: 680px; }
-  .cap-bottom { bottom: 680px; }
+  .cap-top { top: 746px; }
+  .cap-bottom { bottom: 746px; }
   .percent {
     position: absolute; left: 0; width: 100%; margin: 0; z-index: 21;
     font-size: 150px; font-weight: 900; text-align: center; line-height: 1;
@@ -360,8 +360,8 @@ ${ctx.gsapTag}
   }
   .percent.win { color: #2bff4f; }
   .percent.lose { color: #ff2b2b; }
-  .pct-top { top: 668px; }
-  .pct-bottom { bottom: 668px; }
+  .pct-top { top: 700px; }
+  .pct-bottom { bottom: 700px; }
   .timer-ring {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 244px; height: 244px; z-index: 32;
