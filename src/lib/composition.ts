@@ -82,11 +82,19 @@ export async function buildComposition(project: Project): Promise<BuildResult> {
   await fs.mkdir(path.join(assets, "audio"), { recursive: true });
   await fs.mkdir(path.join(assets, "img"), { recursive: true });
   await fs.mkdir(path.join(assets, "sfx"), { recursive: true });
+  await fs.mkdir(path.join(assets, "fonts"), { recursive: true });
 
-  // 1. Copy SFX from public/sfx into the bundle.
+  // 1. Copy SFX + fonts from public/ into the bundle.
   const sfxSrc = path.join(process.cwd(), "public", "sfx");
   for (const f of ["tick.wav", "whoosh.wav", "pop.wav", "ding.wav"]) {
     await fs.copyFile(path.join(sfxSrc, f), path.join(assets, "sfx", f));
+  }
+  const fontSrc = path.join(process.cwd(), "public", "fonts");
+  for (const f of [
+    "montserrat-900-cyrillic.woff2",
+    "montserrat-900-latin.woff2",
+  ]) {
+    await fs.copyFile(path.join(fontSrc, f), path.join(assets, "fonts", f));
   }
 
   // 2. Copy per-question audio + images into the bundle with stable names.
@@ -295,10 +303,19 @@ function renderHtml(
 ${ctx.gsapTag}
 <style>
   html, body { margin: 0; padding: 0; background: #000; }
-  @font-face { font-family: system-heavy; src: local("Arial Black"), local("Helvetica"); }
+  @font-face {
+    font-family: "Montserrat"; font-style: normal; font-weight: 900;
+    src: url("assets/fonts/montserrat-900-cyrillic.woff2") format("woff2");
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  }
+  @font-face {
+    font-family: "Montserrat"; font-style: normal; font-weight: 900;
+    src: url("assets/fonts/montserrat-900-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+2000-206F;
+  }
   #root {
     position: relative; width: ${W}px; height: ${H}px; overflow: hidden;
-    font-family: "Montserrat", "Arial Black", system-heavy, sans-serif;
+    font-family: "Montserrat", "Arial Black", sans-serif; font-weight: 900;
   }
   .half { position: absolute; left: 0; width: 100%; height: 50%; }
   .half.red  { top: 0;   background: linear-gradient(180deg, #f4485e 0%, #d92645 100%); }
@@ -314,11 +331,11 @@ ${ctx.gsapTag}
     font-size: 52px; font-weight: 900; z-index: 31; letter-spacing: 1px;
   }
   .opt-img {
-    position: absolute; left: 50%; margin-left: -410px; width: 820px; height: 560px;
+    position: absolute; left: 50%; margin-left: -440px; width: 880px; height: 600px;
     z-index: 10; border-radius: 10px; overflow: hidden;
   }
-  .opt-img.top { top: 64px; }
-  .opt-img.bottom { top: ${H - 64 - 560}px; }
+  .opt-img.top { top: 56px; }
+  .opt-img.bottom { top: ${H - 56 - 600}px; }
   .opt-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .opt-img .placeholder {
     width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
@@ -332,8 +349,8 @@ ${ctx.gsapTag}
   }
   /* Same distance from each image: image edge is at 624px from its screen edge,
      captions sit 26px from the image on both halves. */
-  .cap-top { top: 650px; }
-  .cap-bottom { bottom: 650px; }
+  .cap-top { top: 680px; }
+  .cap-bottom { bottom: 680px; }
   .percent {
     position: absolute; left: 0; width: 100%; margin: 0; z-index: 21;
     font-size: 150px; font-weight: 900; text-align: center; line-height: 1;
@@ -341,8 +358,8 @@ ${ctx.gsapTag}
   }
   .percent.win { color: #2bff4f; }
   .percent.lose { color: #ff2b2b; }
-  .pct-top { top: 642px; }
-  .pct-bottom { bottom: 642px; }
+  .pct-top { top: 668px; }
+  .pct-bottom { bottom: 668px; }
   .timer-ring {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 244px; height: 244px; z-index: 32;
