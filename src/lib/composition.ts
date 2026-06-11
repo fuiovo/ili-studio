@@ -52,8 +52,10 @@ export function computeSegments(questions: Question[]): Segment[] {
     const voEnd = voStart + voDur;
     const tick = Math.max(1, q.tickSeconds);
     const tickStart = voEnd + 0.15;
-    const percentTime = tickStart + tick * 0.55;
-    const end = tickStart + tick + 0.35;
+    // The timer runs the full tick and the percents reveal exactly when it
+    // finishes (with a beep); then the percents stay on screen for a moment.
+    const percentTime = tickStart + tick;
+    const end = q.showPercents ? percentTime + 1.2 : tickStart + tick + 0.35;
     segments.push({
       q,
       start,
@@ -230,7 +232,7 @@ function renderHtml(
     );
     if (seg.q.showPercents) {
       clips.push(
-        `<audio id="ding-${i}" class="clip" src="assets/sfx/ding.wav" data-start="${n(seg.percentTime)}" data-track-index="5" data-volume="0.55"></audio>`
+        `<audio id="ding-${i}" class="clip" src="assets/sfx/ding.wav" data-start="${n(seg.percentTime)}" data-track-index="5" data-volume="0.75"></audio>`
       );
     }
   });
